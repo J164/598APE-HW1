@@ -5,10 +5,11 @@ Box::Box(const Vector &c, Texture* t, double ya, double pi, double ro, double tx
 
 double Box::getIntersection(Ray ray){
    double time = Plane::getIntersection(ray);
-   Vector dist = solveScalers(right, up, vect, ray.point+ray.vector*time-center);
    if(time==inf) 
       return time;
-   return ( ((dist.x>=0)?dist.x:-dist.x)>textureX/2 || ((dist.y>=0)?dist.y:-dist.y)>textureY/2 )?inf:time;
+
+   Vector dist = solveScalers(right, up, vect, ray.point+ray.vector*time-center);
+   return (abs(dist.x) > textureX / 2 || abs(dist.y) > textureY / 2) ? inf : time;
 }
 
 bool Box::getLightIntersection(Ray ray, double* fill){

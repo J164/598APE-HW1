@@ -30,9 +30,11 @@ bool Sphere::getLightIntersection(Ray ray, double* fill){
    return false;
 }
 double Sphere::getIntersection(Ray ray){
+   Vector offset = ray.point - center;
+
    const double A = ray.vector.mag2();
-   const double B = 2*ray.vector.dot(ray.point-center);
-   const double C = (ray.point-center).mag2()-radius*radius;
+   const double B = 2*ray.vector.dot(offset);
+   const double C = offset.mag2()-radius*radius;
    const double descriminant = B*B-4*A*C;
    if(descriminant<0) return inf;
    else{
