@@ -109,30 +109,34 @@ void getLight(double* tColor, Autonoma* aut, Vector point, Vector norm, unsigned
    tColor[0] = tColor[1] = tColor[2] = 0.;
    LightNode *t = aut->lightStart;
    while(t!=NULL){
-      double lightColor[3];     
-      lightColor[0] = t->data->color[0]/255.;
-      lightColor[1] = t->data->color[1]/255.;
-      lightColor[2] = t->data->color[2]/255.;
       Vector ra = t->data->center-point;
-      ShapeNode* shapeIter = aut->listStart;
-      bool hit = false;
-      while(!hit && shapeIter!=NULL){
-        hit = shapeIter->data->getLightIntersection(Ray(point+ra*.01, ra), lightColor);
-         shapeIter = shapeIter->next;
-      }
       double perc = (norm.dot(ra)/(ra.mag()*norm.mag()));
-      if(!hit){
       if(flip && perc<0) perc=-perc;
-        if(perc>0){
-      
-         tColor[0]+= perc*(lightColor[0]);
-         tColor[1]+= perc*(lightColor[0]);
-         tColor[2]+= perc*(lightColor[0]);
-         if(tColor[0]>1.) tColor[0] = 1.;
-         if(tColor[1]>1.) tColor[1] = 1.;
-         if(tColor[2]>1.) tColor[2] = 1.;
-        }
+
+      if (perc > 0) {
+         double lightColor[3];
+         lightColor[0] = t->data->color[0]/255.;
+         lightColor[1] = t->data->color[1]/255.;
+         lightColor[2] = t->data->color[2]/255.;
+
+         ShapeNode* shapeIter = aut->listStart;
+         bool hit = false;
+         Ray ray = Ray(point+ra*.01, ra);
+         while(!hit && shapeIter!=NULL){
+           hit = shapeIter->data->getLightIntersection(ray, lightColor);
+            shapeIter = shapeIter->next;
+         }
+
+         if(!hit){
+            tColor[0]+= perc*(lightColor[0]);
+            tColor[1]+= perc*(lightColor[0]);
+            tColor[2]+= perc*(lightColor[0]);
+            if(tColor[0]>1.) tColor[0] = 1.;
+            if(tColor[1]>1.) tColor[1] = 1.;
+            if(tColor[2]>1.) tColor[2] = 1.;
+         }
       }
+
       t =t->next;
    }
 }
