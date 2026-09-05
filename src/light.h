@@ -1,5 +1,6 @@
 #ifndef __LIGHT_H__
 #define __LIGHT_H__
+#include <vector>
 #include "vector.h"
 #include "camera.h"
 #include "Textures/texture.h"
@@ -29,14 +30,12 @@ public:
    Camera camera;
    Texture* skybox;
    unsigned int depth;
-   ShapeNode *listStart, *listEnd;
-   LightNode *lightStart, *lightEnd;
+   std::vector<Shape*> shapes;
+   std::vector<Light*> lights;
    Autonoma(const Camera &c);
    Autonoma(const Camera &c, Texture* tex);
    void addShape(Shape* s);
-   void removeShape(ShapeNode* s);
    void addLight(Light* s);
-   void removeLight(LightNode* s);
 };
 
 void getLight(double* toFill, Autonoma* aut, const Vector& point, const Vector& norm, unsigned char r);

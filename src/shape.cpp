@@ -49,18 +49,15 @@ void insertionSort(TimeAndShape *arr, int n) {
 }
 
 void calcColor(unsigned char* toFill,Autonoma* c, const Ray& ray, unsigned int depth){
-   ShapeNode* t = c->listStart;
    double curTime = inf;
    Shape* curShape = NULL;
-   while (t != NULL) {
-      double time = t->data->getIntersection(ray);
+   for (auto shape : c->shapes) {
+      double time = shape->getIntersection(ray);
 
       if (time < curTime) {
          curTime = time;
-         curShape = t->data;
+         curShape = shape;
       }
-
-      t = t->next;
    }
 
    if (curTime == inf) {

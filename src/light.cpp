@@ -16,115 +16,43 @@ unsigned char* Light::getColor(unsigned char a, unsigned char b, unsigned char c
 }
 
 Autonoma::Autonoma(const Camera& c): camera(c){
-   listStart = NULL;
-   listEnd = NULL;
-   lightStart = NULL;
-   lightEnd = NULL;
    depth = 10;
    skybox = BLACK;
 }
 
 Autonoma::Autonoma(const Camera& c, Texture* tex): camera(c){
-   listStart = NULL;
-   listEnd = NULL;
-   lightStart = NULL;
-   lightEnd = NULL;
    depth = 10;
    skybox = tex;
 }
 
 void Autonoma::addShape(Shape* r){
-   ShapeNode* hi = (ShapeNode*)malloc(sizeof(ShapeNode));
-   hi->data = r;
-   hi->next = hi->prev = NULL;
-   if(listStart==NULL){
-      listStart = listEnd = hi;
-   }
-   else{
-      listEnd->next = hi;
-      hi->prev = listEnd;
-      listEnd = hi;
-   }
-}
-
-void Autonoma::removeShape(ShapeNode* s){
-   if(s==listStart){
-      if(s==listEnd){
-         listStart = listStart = NULL;
-      }
-      else{
-         listStart = s->next;
-         listStart->prev = NULL;
-      }
-   }
-   else if(s==listEnd){
-      listEnd = s->prev;
-      listEnd->next = NULL;
-   }
-   else{
-      ShapeNode *b4 = s->prev, *aft = s->next;
-      b4->next = aft;
-      aft->prev = b4;
-   }
-   free(s);
+   shapes.push_back(r);
 }
 
 void Autonoma::addLight(Light* r){
-   LightNode* hi = (LightNode*)malloc(sizeof(LightNode));
-   hi->data = r;
-   hi->next = hi->prev = NULL;
-   if(lightStart==NULL){
-      lightStart = lightEnd = hi;
-   }
-   else{
-      lightEnd->next = hi;
-      hi->prev = lightEnd;
-      lightEnd = hi;
-   }
-}
-
-void Autonoma::removeLight(LightNode* s){
-   if(s==lightStart){
-      if(s==lightEnd){
-         lightStart = lightStart = NULL;
-      }
-      else{
-         lightStart = s->next;
-         lightStart->prev = NULL;
-      }
-   }
-   else if(s==lightEnd){
-      lightEnd = s->prev;
-      lightEnd->next = NULL;
-   }
-   else{
-      LightNode *b4 = s->prev, *aft = s->next;
-      b4->next = aft;
-      aft->prev = b4;
-   }
-   free(s);
+   lights.push_back(r);
 }
 
 void getLight(double* tColor, Autonoma* aut, const Vector& point, const Vector& norm, unsigned char flip){
    tColor[0] = tColor[1] = tColor[2] = 0.;
-   LightNode *t = aut->lightStart;
-   while(t!=NULL){
-      Vector ra = t->data->center-point;
+   for (auto light : aut->lights) {
+      Vector ra = light->center-point;
       double perc = (norm.dot(ra)/(ra.mag()*norm.mag()));
       if(flip && perc<0) perc=-perc;
 
       if (perc > 0) {
          double lightColor[3];
-         lightColor[0] = t->data->color[0]/255.;
-         lightColor[1] = t->data->color[1]/255.;
-         lightColor[2] = t->data->color[2]/255.;
+         lightColor[0] = light->color[0]/255.;
+         lightColor[1] = light->color[1]/255.;
+         lightColor[2] = light->color[2]/255.;
 
-         ShapeNode* shapeIter = aut->listStart;
          bool hit = false;
          Ray ray = Ray(point+ra*.01, ra);
-         while(!hit && shapeIter!=NULL){
-           hit = shapeIter->data->getLightIntersection(ray, lightColor);
-            shapeIter = shapeIter->next;
+         for (auto shape : aut->shapes) {
+            if (shape->getLightIntersection(ray, lightColor)) {
+               hit = true;
+               break;
+            }
          }
 
          if(!hit){
@@ -136,7 +64,5 @@ void getLight(double* tColor, Autonoma* aut, const Vector& point, const Vector& 
             if(tColor[2]>1.) tColor[2] = 1.;
          }
       }
-
-      t =t->next;
    }
 }
