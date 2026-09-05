@@ -1,6 +1,6 @@
 #include "triangle.h"
 
-Triangle::Triangle(Vector c, Vector b, Vector a, Texture* t):Plane(Vector(0,0,0), t, 0., 0., 0., 0., 0.), a(a), edge1(b - a), edge2(c - a){
+Triangle::Triangle(const Vector& c, const Vector& b, const Vector& a, Texture* t):Plane(Vector(0,0,0), t, 0., 0., 0., 0., 0.), a(a), edge1(b - a), edge2(c - a){
    center = c;
    Vector righta = (b-c);
    textureX = righta.mag();
@@ -39,7 +39,7 @@ Triangle::Triangle(Vector c, Vector b, Vector a, Texture* t):Plane(Vector(0,0,0)
 }
 
 // Source: https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm#C++_implementation
-double Triangle::getIntersection(Ray ray){
+double Triangle::getIntersection(const Ray& ray){
    constexpr float epsilon = std::numeric_limits<float>::epsilon();
 
    Vector ray_cross_e2 = ray.vector.cross(edge2);
@@ -68,7 +68,7 @@ double Triangle::getIntersection(Ray ray){
       return inf;
 }
 
-bool Triangle::getLightIntersection(Ray ray, double* fill){
+bool Triangle::getLightIntersection(const Ray& ray, double* fill){
    const double t = ray.vector.dot(vect);
    const double norm = vect.dot(ray.point)+d;
    const double r = -norm/t;
