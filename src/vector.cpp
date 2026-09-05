@@ -82,10 +82,20 @@ Vector Vector::normalize(){
 
   
 Vector solveScalers(Vector v1, Vector v2, Vector v3, Vector C){
-   double denom = v1.z*v2.y*v3.x-v1.y*v2.z*v3.x-v1.z*v2.x*v3.y+v1.x*v2.z*v3.y+v1.y*v2.x*v3.z-v1.x*v2.y*v3.z;
-   double a = C.z*v2.y*v3.x-C.y*v2.z*v3.x-C.z*v2.x*v3.y+C.x*v2.z*v3.y+C.y*v2.x*v3.z-C.x*v2.y*v3.z;
-   double b = -C.z*v1.y*v3.x+C.y*v1.z*v3.x+C.z*v1.x*v3.y-C.x*v1.z*v3.y-C.y*v1.x*v3.z+C.x*v1.y*v3.z;
-   double c = C.z*v1.y*v2.x-C.y*v1.z*v2.x-C.z*v1.x*v2.y+C.x*v1.z*v2.y+C.y*v1.x*v2.z-C.x*v1.y*v2.z;
+   double xterm = v2.z * v3.y - v2.y * v3.z;
+   double yterm = v2.x * v3.z - v2.z * v3.x;
+   double zterm = v2.y * v3.x - v2.x * v3.y;
+
+   double denom = v1.x * xterm + v1.y * yterm + v1.z * zterm;
+   double a = C.x * xterm + C.y * yterm + C.z * zterm;
+   
+   double pterm = C.y * v1.z - C.z * v1.y;
+   double qterm = C.z * v1.x - C.x * v1.z;
+   double rterm = C.x * v1.y - C.y * v1.x;
+   
+   double b = v3.x * pterm + v3.y * qterm + v3.z * rterm;
+   double c = v2.x * -pterm + v2.y * -qterm + v2.z * -rterm;
+
    return Vector(a/denom, b/denom, c/denom);
 }
 
