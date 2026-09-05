@@ -1,0 +1,4 @@
+output/
+baseline/
+*.obj
+*.exe
