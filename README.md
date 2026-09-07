@@ -47,6 +47,63 @@ We have placed timer code surrounding the main computational loop inside main.cp
 
 Here we see that the image took 1.3 seconds to run and produced a result in `output/pianoroom.ppm`. Input and output of images is already handled by the library. In particular, the PPM format (see https://en.wikipedia.org/wiki/Netpbm for an example), represents images as text for data -- which makes it easy to input and output without the use of a library. However, as this is not the most efficient, this application uses the tool ImageMagick tool to convert to and from the PPM formats.
 
+## Reproducing the Report Results
+
+Build the Docker image and enter it:
+
+```bash
+cd docker
+sudo docker build -t 598ape .
+cd ..
+sudo ./dockerrun.sh
+
+cd /host
+```
+
+### Optimizations
+
+Each commit in the git history after the baseline commit represent one optimization from the report.
+
+| # | Report optimization | Commit |
+|---|---------------------|--------|
+| 0 | Baseline | `bd9cf6d` |
+| 1 | Compile with `-O3` | `fcd92a0` |
+| 2 | Compute the first ray intersection more efficiently | `24afded` |
+| 3 | Use an efficient triangle intersection algorithm | `b138545` |
+| 4 | Defer expensive operations in `getIntersection` implementations | `f34de99` |
+| 5 | Skip light-intersection work when the light does not illuminate the surface | `e527048` |
+| 6 | Avoid library calls and branches in `fix` | `3379752` |
+| 7 | Factor out common subexpressions in `solveScalers` | `f881d56` |
+| 8 | Inline Vector operations | `bd19e23` |
+| 9 | Use a `std::vector` for shapes and lights instead of a linked list | `8fb296c` |
+
+### Build
+
+```bash
+git checkout <commit hash>
+make clean && make -j
+```
+
+### Benchmark
+
+Run each test case three times and take trial with the minimum time to reproduce the results from Figure 1 of the report.
+
+```bash
+./main.exe -i inputs/pianoroom.ray --ppm -o output/pianoroom.ppm -H 500 -W 500
+
+./main.exe -i inputs/globe.ray --ppm -a inputs/globe.animate --no-movie -F 24
+
+./main.exe -i inputs/elephant.ray --ppm -a inputs/elephant.animate --no-movie -F 1 -W 100 -H 100 -o output/elephant.ppm
+```
+
+### Cachegrind
+
+Run the Cachegrind command for each commit and compare the results to the previous commit to reproduce the results from Figure 2 of the report.
+
+```bash
+valgrind --tool=cachegrind --cache-sim=yes --branch-sim=yes --cachegrind-out-file=cachegrind.out -- <scene command>
+```
+
 ## Input Programs
 This project contains three (arguably four) input programs for you to optimize.
 
